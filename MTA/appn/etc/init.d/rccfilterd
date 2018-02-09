@@ -1,0 +1,118 @@
+#!/bin/sh
+APP_PATH="/MTA/appn"
+SERVICE="cfilterd.pl"
+APP="$APP_PATH/bin/$SERVICE"
+QUEUES_CONFIG="$APP_PATH/etc/psfix"
+
+red='\E[31;40m'
+green='\E[32;40m'
+yellow='\E[33;40m'
+
+function Usage() {
+	echo "Usage:"
+	echo -e "\t$0 [ start | stop | status ] queue_name"
+}
+
+function Start() {
+
+	
+	echo -n "Running $SERVICE for queue $1... "
+
+	CONFIG="$QUEUES_CONFIG/$1/cfilterd.conf"
+	$APP --config=$CONFIG
+	ERRCOD=$?
+	if [ "$ERRCOD" != "0" ]; then
+		echo -e "$red[ERROR]"
+		tput sgr0
+		ERROR=1
+	else
+		echo -e "$green[Ok]"
+		tput sgr0
+	fi
+	return $ERROR
+}
+
+function Stop() {
+
+	echo -n "Stopping $SERVICE for queue $1... "
+        running=`ps waux | grep $SERVICE | grep $1 | grep -v grep | awk '{print $2}'`
+        if [ "$running" = "" ] 
+	then
+		echo -e "$red[ERROR]"
+		tput sgr0
+		return 1
+	fi
+       
+	kill $running 1>&2>/dev/null
+	#killall `basename $SERVICE`
+	ERRCOD=$?
+	if [ "$ERRCOD" != "0" ]; then
+		echo -e "$red[ERROR]"
+		tput sgr0
+		ERROR=1
+	else
+		echo -e "$green[Ok]"
+		tput sgr0
+	fi	
+	return $ERROR
+}
+
+function Status() {
+
+	#el pidfile debe tener este formato en los ficheos de configuracion: cfilterd_cola.pid
+	PIDFILE="/MTA/datos/var/run/cfilterd_"$1".pid"
+       	INSTANCES=`ps ax | grep -v grep | grep  $SERVICE | wc -l`
+	
+	if [ ! -e $PIDFILE  ]
+	then
+		if [ $INSTANCES -eq 0 ]
+		then
+			echo -e "$green[Ok]: Unused."
+			exit 0
+		else
+			echo -e  "$red[ERROR]: No pidfile but $INSTANCES running:"
+			echo
+			ps waux | grep -v grep | grep  $SERVICE
+			exit 1
+		fi
+	else
+		PID=`cat $PIDFILE`
+		if [ $INSTANCES -ne 0 ]
+		then
+			echo -e "$green[Ok]: Running $INSTANCES instances:"
+			echo 
+			ps waux | grep -v grep | grep  $SERVICE
+			exit 0
+		else
+			echo -e  "$red[ERROR]: PID is $PID, but no instances running."
+			exit 1
+		fi
+	fi
+
+}	
+
+	
+if [ "$2" == "" ]
+then
+	Usage
+	exit 1
+fi
+
+
+case "$1" in
+	start)
+		Start $2
+		exit $?
+		;;
+	stop)
+		Stop $2
+		exit $?
+		;;
+	status)
+		Status $2
+		exit $?
+		;;
+	*)
+		Usage
+		;;
+esac

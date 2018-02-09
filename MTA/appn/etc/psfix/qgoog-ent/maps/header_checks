@@ -1,0 +1,7 @@
+/^From:.*address1@company1\.org.*/  FILTER	smtp:[127.0.0.1]:10027
+/^From:.*address2@company2\.com.*/  FILTER	smtp:[127.0.0.1]:10027
+/^From:.*address3@company3\.com.*/  FILTER	smtp:[127.0.0.1]:10027
+/^From:.*address4@company4\.com.*/  FILTER	smtp:[127.0.0.1]:10027
+/^From:.*address5@company5\.com.*/  FILTER	smtp:[127.0.0.1]:10027
+
+

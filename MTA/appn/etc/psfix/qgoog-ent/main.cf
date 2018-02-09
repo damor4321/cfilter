@@ -1,0 +1,15 @@
+#this is a Postfix Main Configuration file with all the contents.... It comes, as master.cf, is always included in your Postfix distribution
+#
+#
+#
+data_directory = /MTA/queues/psfix/qgoog-ent/data
+config_directory = /MTA/appn/etc/psfix/qgoog-ent
+maps_dir = ${config_directory}/maps
+queue_directory = /MTA/colas/psfix/qgoog-ent/spool
+#
+#
+#
+header_checks = pcre:/MTA/appn/etc/psfix/qgoog-ent/maps/header_checks
+#
+#
+#
